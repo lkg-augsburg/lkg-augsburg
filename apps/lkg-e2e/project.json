@@ -1,0 +1,8 @@
+{
+  "name": "lkg-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/lkg-e2e/src",
+  "implicitDependencies": ["lkg"],
+  "// targets": "to see all targets run: nx show project lkg-e2e --web",
+  "targets": {}
+}
