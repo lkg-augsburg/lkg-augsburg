@@ -1,5 +1,6 @@
 import { CsrfTokenRepsone } from "../models/ct-rest/CsrfToken";
 import { CtCookie } from "../models/ct-rest/CtCookie";
+import { Event, EventsRequestParamaters } from "../models/ct-rest/events";
 import { parseSetCookie } from "../utils/parse-set-cookie";
 
 interface ExecOptions {
@@ -89,4 +90,18 @@ export class CtRestClient {
     return {...this.cookie};
   }
 
+  getEvents(parameters?: EventsRequestParamaters){
+    const paras = {...parameters};
+    if(paras.direction === undefined) {
+      paras.direction = "forward";
+    }
+    return this._execJson<{
+      data: Event[],
+      meta: { count: number; }
+    }>('/events', {parameters: {...paras}});
+  }
+
+  getEvent(eventId: number | string){
+    return this._execJson<{ data: Event }>(`/events/${eventId}`)
+  }
 }

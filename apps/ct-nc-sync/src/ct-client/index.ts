@@ -1,3 +1,4 @@
+import { EventsRequestParamaters } from "../models/ct-rest/events";
 import { CtRestClient } from "./CtRestClient";
 
 export class CTClient {
@@ -31,4 +32,11 @@ export class CTClient {
     return this._isAuthenticated;
   }
 
+  public getEvents(parameters?: EventsRequestParamaters){
+    return this.restClient.getEvents(parameters);
+  }
+
+  public getEvent(eventId: string | number){
+    return this.restClient.getEvent(eventId);
+  }
 }
