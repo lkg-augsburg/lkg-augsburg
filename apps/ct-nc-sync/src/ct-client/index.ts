@@ -1,4 +1,5 @@
 import { EventsRequestParamaters } from "../models/ct-rest/events";
+import { CtAjaxClient } from "./CtAjaxClient";
 import { CtRestClient } from "./CtRestClient";
 
 export class CTClient {
@@ -7,6 +8,7 @@ export class CTClient {
   private readonly ctUrl: string;
 
   private restClient: CtRestClient;
+  private ajaxClient: CtAjaxClient;
 
   private _isAuthenticated: Promise<true>;
 
@@ -24,6 +26,7 @@ export class CTClient {
 
     await this._isAuthenticated;
     
+    this.ajaxClient = new CtAjaxClient(this.ctUrl, this.restClient.getCookie(), this.restClient.getCsrfToken());
 
     return this.isAuthenticated;
   }
@@ -38,5 +41,17 @@ export class CTClient {
 
   public getEvent(eventId: string | number){
     return this.restClient.getEvent(eventId);
+  }
+
+  public addEventLink(url: string, linkName: string, eventId: string | number){
+    return this.ajaxClient.addLink(url, linkName, eventId);
+  }
+
+  public deleteFile(fileId: string | number){
+    if(typeof fileId === "string" && !/^\d+$/.test(fileId)) {
+      throw new Error(`File id [${fileId}] is not a positive integer!`)
+    }
+
+    return this.ajaxClient.deleteFile(fileId);
   }
 }
