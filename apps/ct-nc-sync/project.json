@@ -1,0 +1,61 @@
+{
+  "name": "ct-nc-sync",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/ct-nc-sync/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/ct-nc-sync",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "apps/ct-nc-sync/src/main.ts",
+        "tsConfig": "apps/ct-nc-sync/tsconfig.app.json",
+        "assets": ["apps/ct-nc-sync/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generateLockfile": true,
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "ct-nc-sync:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "ct-nc-sync:build:development"
+        },
+        "production": {
+          "buildTarget": "ct-nc-sync:build:production"
+        }
+      }
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f apps/ct-nc-sync/Dockerfile . -t ct-nc-sync"
+    }
+  },
+  "tags": []
+}

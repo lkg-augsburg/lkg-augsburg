@@ -45,3 +45,5 @@ Thumbs.db
 .nuxt
 .nitro
 .cache
+
+.env
