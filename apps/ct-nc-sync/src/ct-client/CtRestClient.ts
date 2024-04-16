@@ -1,5 +1,5 @@
-import { CsrfTokenRepsone } from "../models/ct-rest/CsrfToken";
-import { CtCookie } from "../models/ct-rest/CtCookie";
+import { CsrfTokenRepsone } from "../models/ct-rest/csrf-token";
+import { CtCookie } from "../models/ct-rest/ct-cookie";
 import { Event, EventsRequestParamaters } from "../models/ct-rest/events";
 import { parseSetCookie } from "../utils/parse-set-cookie";
 

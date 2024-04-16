@@ -1,5 +1,5 @@
 import { convert } from 'xmlbuilder2'
-import { NextcloudDirList } from '../models/nextcloud';
+import { NextcloudDirList } from '../models/nc/nextcloud';
 import { convertNcDirList } from '../utils/convert-nc-dir-list';
 
 export class NextcloudClient {

@@ -1,5 +1,5 @@
-import { CtCookie } from "../models/ct-rest/CtCookie";
-import { EventAddLinkResponse, EventDeleteFileResponse } from "../models/ct-rest/events";
+import { CtCookie } from "../models/ct-rest/ct-cookie";
+import { EventAddLinkResponse, EventDeleteFileResponse } from "../models/ct-ajax/events";
 
 export class CtAjaxClient {
 

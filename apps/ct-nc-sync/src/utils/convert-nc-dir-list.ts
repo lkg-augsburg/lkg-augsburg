@@ -1,5 +1,5 @@
-import { NCDirEntryItem } from "../models/NCDirEntryItem";
-import { NextcloudDirList } from "../models/nextcloud";
+import { NCDirEntryItem } from "../models/nc/NCDirEntryItem";
+import { NextcloudDirList } from "../models/nc/nextcloud";
 
 export function convertNcDirList(ncResponse: NextcloudDirList): NCDirEntryItem[] {
   const respList = ncResponse["d:multistatus"]["d:response"];

@@ -1,4 +1,4 @@
-import { CtCookie } from "../models/ct-rest/CtCookie";
+import { CtCookie } from "../models/ct-rest/ct-cookie";
 
 export function parseSetCookie(cookieString: string){
   const parts = cookieString.split(";");
