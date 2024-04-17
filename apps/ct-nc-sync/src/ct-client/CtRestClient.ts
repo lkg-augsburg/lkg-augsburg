@@ -1,12 +1,18 @@
 import { CsrfTokenRepsone } from "../models/ct-rest/csrf-token";
 import { CtCookie } from "../models/ct-rest/ct-cookie";
 import { Event, EventsRequestParamaters } from "../models/ct-rest/events";
+import { Group, GroupsRequestOptions, GroupsResponse } from "../models/ct-rest/groups";
 import { parseSetCookie } from "../utils/parse-set-cookie";
+
+interface RequestParameters {
+  [parameterName: string]: string | number | boolean | string[] | number[] | undefined | null;
+}
 
 interface ExecOptions {
   headers?: { [headerName: string]: string;};
   method?: string;
-  parameters?: {[parameterName: string]: string | number | boolean | string[] | number[] | undefined | null }
+  parameters?: RequestParameters,
+  parameterExplicitArray?: boolean;
 }
 
 export class CtRestClient {
@@ -26,7 +32,7 @@ export class CtRestClient {
 
   private async _exec(
     uri: string, 
-    {headers, method, parameters}: ExecOptions = {}
+    {headers, method, parameters, parameterExplicitArray}: ExecOptions = {}
 ){
     let url = `${this.baseUrl}/${uri.replace(/^\/+/, '')}`.replace(/\/+/g, '/');
 
@@ -34,7 +40,12 @@ export class CtRestClient {
       const paras = [];
       for(const [paraName, paraValue] of Object.entries(parameters)){
         if(paraValue instanceof Array){
-          paras.push(`${encodeURIComponent(paraName)}=${encodeURIComponent(paraValue.join(','))}`);
+          const encParaName = encodeURIComponent(paraName);
+          if(parameterExplicitArray){
+            paras.push(...paraValue.map(v => `${encodeURIComponent(`${encParaName}[]`)}=${encodeURIComponent(v)}`));
+          } else {
+            paras.push(`${encParaName}=${encodeURIComponent(paraValue.join(','))}`);
+          }
         } else if (paraValue === undefined || paraValue === null){
           paras.push(encodeURIComponent(paraName));
         } else {
@@ -103,5 +114,78 @@ export class CtRestClient {
 
   getEvent(eventId: number | string){
     return this._execJson<{ data: Event }>(`/events/${eventId}`)
+  }
+
+  public async getGroups(options: GroupsRequestOptions = {limit: 200, page: 1}){
+    const groups: Group[] = [];
+    const isParameterExplicitArray = options.includeHasPermission || options.includeMemberStatistics || options.includePlaces || options.includeRoles || options.includeTags || options.filter?.tags !== undefined;
+    let hasNextPage = false;
+    let nextPage = options.page || 1;
+    const baseParameter: RequestParameters = {
+      limit: options.limit || 200,
+      page: nextPage
+    };
+
+    if(baseParameter.page as number < 1){
+      baseParameter.page = 1;
+    }
+    if(baseParameter.limit as number < 1){
+      baseParameter.limit = 1;
+    }
+    if(baseParameter.limit as number > 200){
+      baseParameter.limit = 200;
+    }
+
+    if(isParameterExplicitArray){
+      baseParameter.include = [] as string[]
+    }
+
+    if(options.filter?.tags || options.includeTags){
+      (baseParameter.include as string[]).push("tags");
+    }
+    if(options.includeHasPermission){
+      (baseParameter.include as string[]).push("hasPermissions");
+    }
+    if(options.includeMemberStatistics){
+      (baseParameter.include as string[]).push("memberStatistics");
+    }
+    if(options.includePlaces){
+      (baseParameter.include as string[]).push("places");
+    }
+    if(options.includeRoles){
+      (baseParameter.include as string[]).push("roles");
+    }
+
+    do {
+      const parameters = {
+        ...baseParameter,
+        page: nextPage
+      };
+
+      const { data, meta } = await this._execJson<GroupsResponse>('/groups', {
+        parameterExplicitArray: isParameterExplicitArray,
+        parameters
+      });
+
+      if(options.filter){
+        const { tags } = options.filter;
+        groups.push(...data.filter(({tags: groupTags}) => {
+          const groupTagNames = groupTags.map(gt => gt.name);
+          for(const gtName of groupTagNames){
+            if(tags.includes(gtName)){
+              return true;
+            }
+          }
+          return false;
+        }));
+      } else {
+        groups.push(...data)
+      }
+
+      hasNextPage = meta.pagination.current < meta.pagination.lastPage;
+      nextPage = meta.pagination.current + 1;
+    } while (hasNextPage);
+
+    return groups;
   }
 }

@@ -1,4 +1,5 @@
 import { EventsRequestParamaters } from "../models/ct-rest/events";
+import { GroupsRequestFilterOptions, GroupsRequestOptions } from "../models/ct-rest/groups";
 import { CtAjaxClient } from "./CtAjaxClient";
 import { CtRestClient } from "./CtRestClient";
 
@@ -53,5 +54,9 @@ export class CTClient {
     }
 
     return this.ajaxClient.deleteFile(fileId);
+  }
+
+  public getGroups(options: GroupsRequestOptions = {limit: 200, page: 1}){
+    return this.restClient.getGroups(options);
   }
 }
